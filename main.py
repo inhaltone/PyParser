@@ -1,17 +1,21 @@
 import html
-from bs4 import BeautifulSoup
 import re
 import xml.etree.ElementTree as ET
 
+import pandas as pd
+from bs4 import BeautifulSoup
+
 XML_PATH = ''
 TARGET_FILE = '2023-03-20.xml'
+CSV_PATH = 'wp_posts.csv'
 
 
 def cleanRegex(string):
-    # pattern = r'\[(cmsmasters_|/cmsmasters_).*\]'
-    pattern = r'\[(cmsmasters_|/cmsmasters_).*?\]'
-    htmlText = re.sub(pattern, "", string)
-    return htmlText
+    if type(string) == str:
+        # pattern = r'\[(cmsmasters_|/cmsmasters_).*\]'
+        pattern = r'\[(cmsmasters_|/cmsmasters_).*?\]'
+        htmlText = re.sub(pattern, "", string)
+        return htmlText
 
 
 def XMLparse(path: str):
@@ -35,6 +39,12 @@ def XMLparse(path: str):
         f.write(mod_xml)
 
 
+def CSVParse(path):
+    posts = pd.read_csv(path)
+    posts["post_content"] = posts["post_content"].apply(cleanRegex)
+    posts.to_csv('output/wp_posts.csv', index=False)
+
+
 def modifyXMLandSave(path: str):
     tree = ET.parse('sample.xml')
     root = tree.getroot()
@@ -44,5 +54,6 @@ def modifyXMLandSave(path: str):
 
 
 if __name__ == '__main__':
-    XMLparse(path=XML_PATH)
+    CSVParse(CSV_PATH)
+    # XMLparse(path=XML_PATH)
     # modifyXMLandSave(path=TEST_PATH)
